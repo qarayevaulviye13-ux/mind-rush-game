@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIND RUSH - Sosial Siyasət</title>
+
+<style>
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  min-height:100vh;
+  font-family:Arial,sans-serif;
+  color:white;
+  background:radial-gradient(circle at top,#39216e,#11102b 65%,#080817);
+  text-align:center;
+  overflow-x:hidden;
+}
+
+body::before {
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:radial-gradient(circle,#ffffff12 1px,transparent 2px);
+  background-size:35px 35px;
+  animation:stars 15s linear infinite;
+}
+
+@keyframes stars {
+  from {background-position:0 0;}
+  to {background-position:200px 200px;}
+}
+
+header { padding:25px 12px 12px; }
+
+h1 {
+  font-size:clamp(34px,8vw,55px);
+  margin:0;
+  letter-spacing:5px;
+  background:linear-gradient(90deg,#35e9ff,#d78aff,#ff62c9);
+  -webkit-background-clip:text;
+  color:transparent;
+  filter:drop-shadow(0 0 13px #a44cff);
+}
+
+.subtitle {
+  color:#d5c9ff;
+  margin-top:8px;
+  letter-spacing:2px;
+  font-size:12px;
+}
+
+.container {
+  width:min(94%,700px);
+  margin:15px auto 35px;
+}
+
+.card {
+  background:#211b43eF;
+  border:1px solid #9a67ff;
+  border-radius:24px;
+  padding:22px;
+  box-shadow:0 0 30px #793cff55;
+  animation:appear .5s ease;
+}
+
+@keyframes appear {
+  from {opacity:0;transform:translateY(15px);}
+  to {opacity:1;transform:translateY(0);}
+}
+
+.players {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.player {
+  border-radius:17px;
+  padding:13px 5px;
+  background:#15152f;
+  border:2px solid #514b76;
+  transition:.3s;
+}
+
+.player.active {
+  border-color:#ffe66d;
+  box-shadow:0 0 20px #ffe66d88;
+  transform:scale(1.04);
+}
+
+.player:first-child {color:#42eaff;}
+.player:last-child {color:#ff72ce;}
+
+.player strong {font-size:16px;}
+.points {font-size:25px;margin-top:6px;font-weight:bold;}
+
+.progress {
+  height:9px;
+  background:#393257;
+  border-radius:20px;
+  overflow:hidden;
+  margin:17px 0;
+}
+
+#progressBar {
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#39e9ff,#d75cff,#ff62c9);
+  transition:width .4s;
+}
+
+#questionNumber {
+  color:#ffe66d;
+  font-weight:bold;
+  letter-spacing:2px;
+  font-size:13px;
+}
+
+#question {
+  font-size:clamp(19px,4vw,25px);
+  line-height:1.5;
+  margin:18px 0 23px;
+}
+
+#turn {
+  color:#c7baff;
+  margin:12px 0;
+  font-weight:bold;
+}
+
+.answers {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.answer {
+  background:#33275d;
+  color:white;
+  border:1px solid #7864ad;
+  padding:17px 10px;
+  min-height:75px;
+  border-radius:15px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.answer:hover:not(:disabled) {
+  background:#6740a8;
+  transform:translateY(-3px);
+  box-shadow:0 0 15px #ac66ff;
+}
+
+.answer:disabled {cursor:default;opacity:1;}
+
+.answer.correct {
+  background:#087d65;
+  border-color:#5affc9;
+  box-shadow:0 0 15px #20ffba77;
+}
+
+.answer.wrong {
+  background:#9d2852;
+  border-color:#ff72a5;
+}
+
+#feedback {
+  display:none;
+  margin-top:18px;
+  background:#302652;
+  border-radius:15px;
+  padding:15px;
+  line-height:1.6;
+  color:#eee7ff;
+  text-align:left;
+}
+
+#feedback strong {color:#ffe66d;}
+
+.mainButton {
+  border:0;
+  padding:15px 28px;
+  border-radius:30px;
+  color:white;
+  font-weight:bold;
+  font-size:16px;
+  margin-top:18px;
+  background:linear-gradient(100deg,#713cff,#e13ebf);
+  box-shadow:0 0 20px #a63cff77;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.mainButton:hover {transform:scale(1.05);}
+
+.hidden {display:none!important;}
+
+#startScreen,#endScreen {
+  padding:35px 20px;
+}
+
+.bigIcon {
+  font-size:65px;
+  margin:10px;
+  animation:bounce 2s infinite;
+}
+
+@keyframes bounce {
+  50% {transform:translateY(-10px);}
+}
+
+.description {
+  color:#d2c9ef;
+  line-height:1.8;
+}
+
+.result {
+  font-size:23px;
+  color:#ffe66d;
+  font-weight:bold;
+  margin:20px 0;
+}
+
+footer {
+  color:#a99bc9;
+  font-size:12px;
+  padding:15px;
+}
+
+@media(max-width:480px) {
+  .card {padding:15px;}
+  .answers {grid-template-columns:1fr;}
+  .answer {min-height:58px;}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>MIND RUSH</h1>
+  <div class="subtitle">THE ULTIMATE KNOWLEDGE BATTLE</div>
+</header>
+
+<div class="container">
+
+<!-- BAŞLANĞIC -->
+<section class="card" id="startScreen">
+  <div class="bigIcon">🧠</div>
+  <h2>ZEKA YARIŞINA XOŞ GƏLMİSİNİZ!</h2>
+  <p class="description">
+    SOSİAL SİYASƏT MODELLƏRİ<br>
+    15 maraqlı sual · 2 oyunçu · 1 qalib<br><br>
+    Hər iki oyunçu eyni sualları cavablandıracaq.
+    Düzgün cavab 1 xal qazandıracaq.
+  </p>
+  <button class="mainButton" onclick="startGame()">🚀 OYUNA BAŞLA</button>
+</section>
+
+<!-- OYUN -->
+<section class="card hidden" id="gameScreen">
+
+  <div class="players">
+    <div class="player active" id="player1">
+      <strong>🔵 PLAYER 1</strong>
+      <div class="points" id="score1">0</div>
+      <small>XAL</small>
+    </div>
+
+    <div class="player" id="player2">
+      <strong>💗 PLAYER 2</strong>
+      <div class="points" id="score2">0</div>
+      <small>XAL</small>
+    </div>
+  </div>
+
+  <div id="questionNumber">SUAL 1 / 15</div>
+
+  <div class="progress">
+    <div id="progressBar"></div>
+  </div>
+
+  <div id="turn">🔵 PLAYER 1-in növbəsidir!</div>
+
+  <h2 id="question"></h2>
+
+  <div class="answers" id="answers"></div>
+
+  <div id="feedback"></div>
+
+  <button id="nextButton" class="mainButton hidden" onclick="nextTurn()">
+    NÖVBƏTİ OYUNÇU →
+  </button>
+
+</section>
+
+<!-- SON -->
+<section class="card hidden" id="endScreen">
+  <div class="bigIcon">🏆</div>
+  <h2>YARIŞ BİTDİ!</h2>
+  <div class="result" id="winner"></div>
+  <p id="finalScores" class="description"></p>
+  <button class="mainButton" onclick="location.reload()">↻ YENİDƏN OYNA</button>
+</section>
+
+</div>
+
+<footer>✨ MIND RUSH · SOSİAL SİYASƏT XÜSUSİ BURAXILIŞI ✨</footer>
+
+<script>
+
+// 15 SUAL VƏ CAVABLAR
+
+const questions = [
+
+{
+q:"Liberal (Anqlosakson) sosial siyasət modelinin əsas xüsusiyyəti hansıdır?",
+a:["Dövlətin bütün xidmətləri pulsuz təmin etməsi","Bazar mexanizminin və fərdi məsuliyyətin üstünlüyü","Bütün vətəndaşlara eyni əməkhaqqının verilməsi","Sosial təminatın yalnız ailə tərəfindən həyata keçirilməsi"],
+c:1,
+e:"Liberal modeldə bazar iqtisadiyyatı, fərdi məsuliyyət və ehtiyacı olanlara ünvanlı sosial yardım əsas yer tutur."
+},
+
+{
+q:"Sosial-demokratik model daha çox hansı ölkələrlə əlaqələndirilir?",
+a:["ABŞ və Kanada","İtaliya və İspaniya","İsveç və Norveç","Almaniya və Fransa"],
+c:2,
+e:"Skandinaviya ölkələri – İsveç, Norveç, Danimarka və Finlandiya sosial-demokratik modelin nümunələridir."
+},
+
+{
+q:"Sosial-demokratik modelin əsas məqsədi nədir?",
+a:["Sosial bərabərliyi və universal rifahı təmin etmək","Dövlətin sosial müdafiədən tamamilə uzaqlaşması","Yalnız işləyənlərə sosial yardım göstərmək","Sosial xidmətləri yalnız özəl sektora həvalə etmək"],
+c:0,
+e:"Bu model bütün vətəndaşlar üçün geniş sosial xidmətlər, bərabər imkanlar və yüksək sosial müdafiə yaratmağa çalışır."
+},
+
+{
+q:"Bismark və ya korporativ sosial təminat modelinin əsas maliyyə mənbəyi hansıdır?",
+a:["Turizm gəlirləri","Yalnız dövlət büdcəsi","Beynəlxalq təşkilatların yardımları","İşçi və işəgötürənlərin sosial sığorta haqları"],
+c:3,
+e:"Bismark modelində sosial sığorta sistemi əsasdır. İşçilər və işəgötürənlər sığorta haqları ödəyirlər."
+},
+
+{
+q:"Bismark modelində sosial təminat əsasən nə ilə əlaqələndirilir?",
+a:["Vətəndaşın yaşadığı ərazi ilə","Əmək fəaliyyəti və sığorta ödənişləri ilə","Yalnız ailənin gəliri ilə","Vətəndaşın təhsil səviyyəsi ilə"],
+c:1,
+e:"Bu modeldə sosial təminat əsasən məşğulluq və əvvəlcədən ödənilmiş sosial sığorta haqları ilə bağlıdır."
+},
+
+{
+q:"Aralıq dənizi sosial siyasət modelinin səciyyəvi xüsusiyyəti hansıdır?",
+a:["Ailənin sosial müdafiədə mühüm rol oynaması","Dövlətin bütün sosial xidmətləri ləğv etməsi","Yalnız universal dövlət sığortasının mövcudluğu","Bütün sosial məsuliyyətin işəgötürənə verilməsi"],
+c:0,
+e:"Aralıq dənizi modelində ailə sosial dəstək və qayğı sistemində mühüm yer tutur. İtaliya və İspaniya buna nümunədir."
+},
+
+{
+q:"Aşağıdakılardan hansı liberal modelin mümkün çatışmazlığıdır?",
+a:["Dövlətin sosial xərclərinin həddindən artıq yüksək olması","Universal xidmətlərin həddindən artıq genişliyi","Gəlir bərabərsizliyinin və sosial fərqlərin artması","Əmək bazarında fərdi təşəbbüsün məhdudlaşması"],
+c:2,
+e:"Bazar mexanizmlərinə güclü üstünlük verilməsi gəlir fərqlərinin artmasına və sosial bərabərsizliyə səbəb ola bilər."
+},
+
+{
+q:"Sosial-demokratik modeldə sosial xidmətlər kimlər üçün nəzərdə tutulur?",
+a:["Yalnız işsiz insanlar üçün","Yalnız yüksək gəlirli şəxslər üçün","Yalnız dövlət qulluqçuları üçün","Bütün vətəndaşlar üçün"],
+c:3,
+e:"Universal sosial təminat prinsipinə əsasən təhsil, səhiyyə və digər xidmətlər geniş əhali qruplarına təqdim olunur."
+},
+
+{
+q:"İnkişaf etməkdə olan ölkələrdə sosial siyasətin əsas problemlərindən biri hansıdır?",
+a:["Sosial xidmətlərin hamı üçün həddindən artıq əlçatan olması","Maliyyə resurslarının məhdudluğu və qeyri-formal məşğulluq","Əhalinin yaşlanmasının tamamilə dayanması","Sosial bərabərliyin artıq tam təmin edilməsi"],
+c:1,
+e:"Məhdud büdcə, yoxsulluq, qeyri-formal məşğulluq və xidmətlərə çıxış çətinlikləri mühüm problemlərdir."
+},
+
+{
+q:"İnkişaf etmiş ölkələrin sosial siyasətində hansı istiqamət daha çox inkişaf edib?",
+a:["Sosial müdafiə və xidmətlərin institusional sistemi","Sosial təminatın tamamilə ailəyə həvalə edilməsi","Dövlətin təhsildən imtina etməsi","Sosial xidmətlərin yalnız könüllülər tərəfindən göstərilməsi"],
+c:0,
+e:"İnkişaf etmiş ölkələrdə pensiya, səhiyyə, təhsil və sosial müdafiə üzrə daha formalaşmış institutlar mövcuddur."
+},
+
+{
+q:"Liberal və sosial-demokratik modellər arasında əsas fərq nədir?",
+a:["Hər ikisində dövlətin rolu eynidir","Liberal model yalnız pensiya verir","Sosial-demokratik model dövlətin geniş sosial təminat rolunu, liberal model isə bazar və fərdi məsuliyyəti önə çəkir","Hər ikisi yalnız ailə dəstəyinə əsaslanır"],
+c:2,
+e:"Liberal modeldə bazar və fərdi məsuliyyət, sosial-demokratik modeldə isə universal dövlət təminatı daha güclüdür."
+},
+
+{
+q:"Hansı sosial siyasət modelində sosial təminat əmək münasibətləri və peşə qrupları ilə sıx bağlıdır?",
+a:["Liberal","Korporativ (Bismark)","Sosial-demokratik","Aralıq dənizi"],
+c:1,
+e:"Korporativ modeldə sosial sığorta və təminat əmək fəaliyyəti, peşə statusu və sığorta haqları ilə əlaqələndirilir."
+},
+
+{
+q:"Sosial siyasət modelinin Azərbaycanda tətbiqində ən düzgün yanaşma hansıdır?",
+a:["Bir ölkənin modelini heç bir dəyişiklik etmədən köçürmək","Bütün sosial xidmətləri ləğv etmək","Yalnız liberal modeli tətbiq etmək","Müxtəlif modellərin faydalı cəhətlərini yerli şəraitə uyğunlaşdırmaq"],
+c:3,
+e:"Ölkənin iqtisadi imkanları, demoqrafik vəziyyəti, əmək bazarı və milli xüsusiyyətləri nəzərə alınmalıdır."
+},
+
+{
+q:"Sosial siyasətdə ünvanlı sosial yardımın əsas məqsədi nədir?",
+a:["Ehtiyaclı ailələrin maddi vəziyyətini yaxşılaşdırmaq","Bütün vətəndaşlara eyni məbləğdə əməkhaqqı vermək","Yalnız sahibkarları dəstəkləmək","İşsizliyin statistikasını dəyişmək"],
+c:0,
+e:"Ünvanlı sosial yardım aztəminatlı və ehtiyaclı ailələrə dəstək göstərmək üçün nəzərdə tutulur."
+},
+
+{
+q:"Hansı model sosial müdafiənin maliyyələşdirilməsində ümumi vergilərə və dövlət büdcəsinə daha çox əsaslanır?",
+a:["Bismark modeli","Korporativ model","Beveric (vergi əsaslı universal) modeli","Yalnız ailə dəstəyi modeli"],
+c:2,
+e:"Beveric modelində sosial xidmətlər və təminat əsasən vergilər hesabına maliyyələşdirilir. Bu, Bismark modelindən fərqlənir."
+}
+
+];
+
+let scores=[0,0];
+let questionIndex=0;
+let player=0;
+let answered=false;
+
+function startGame(){
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("gameScreen").classList.remove("hidden");
+  showQuestion();
+}
+
+function showQuestion(){
+  answered=false;
+
+  document.getElementById("questionNumber").textContent=
+    "SUAL "+(questionIndex+1)+" / 15";
+
+  document.getElementById("progressBar").style.width=
+    ((questionIndex)/questions.length*100)+"%";
+
+  document.getElementById("question").textContent=
+    questions[questionIndex].q;
+
+  document.getElementById("turn").textContent=
+    (player===0?"🔵 PLAYER 1":"💗 PLAYER 2")+" - SƏNİN NÖVBƏNDİR!";
+
+  document.getElementById("player1").classList.toggle("active",player===0);
+  document.getElementById("player2").classList.toggle("active",player===1);
+
+  document.getElementById("feedback").style.display="none";
+  document.getElementById("nextButton").classList.add("hidden");
+
+  const area=document.getElementById("answers");
+  area.innerHTML="";
+
+  questions[questionIndex].a.forEach((answer,index)=>{
+    const button=document.createElement("button");
+    button.className="answer";
+    button.textContent=String.fromCharCode(65+index)+". "+answer;
+    button.onclick=()=>chooseAnswer(index);
+    area.appendChild(button);
+  });
+}
+
+function chooseAnswer(index){
+  if(answered)return;
+  answered=true;
+
+  const q=questions[questionIndex];
+  const buttons=document.querySelectorAll(".answer");
+  const correct=index===q.c;
+
+  if(correct){
+    scores[player]++;
+    document.getElementById("score"+(player+1)).textContent=scores[player];
+    buttons[index].classList.add("correct");
+  }else{
+    buttons[index].classList.add("wrong");
+    buttons[q.c].classList.add("correct");
+  }
+
+  buttons.forEach(b=>b.disabled=true);
+
+  const feedback=document.getElementById("feedback");
+  feedback.style.display="block";
+
+  feedback.innerHTML=
+    (correct?"<strong>✨ ƏLA! DÜZGÜN CAVAB! +1 XAL</strong>":
+    "<strong>❌ TƏƏSSÜF! BU DƏFƏ SƏHV OLDU.</strong>")+
+    "<br><br><strong>Düzgün cavab:</strong> "+q.a[q.c]+
+    "<br><br><strong>İzah:</strong> "+q.e;
+
+  document.getElementById("turn").textContent=
+    "Cavab qeydə alındı!";
+
+  const next=document.getElementById("nextButton");
+  next.textContent=player===0?"💗 PLAYER 2-NİN NÖVBƏSİ":"NÖVBƏTİ SUAL →";
+  next.classList.remove("hidden");
+}
+
+function nextTurn(){
+  if(player===0){
+    player=1;
+    showQuestion();
+  }else{
+    player=0;
+    questionIndex++;
+
+    if(questionIndex>=questions.length){
+      endGame();
+    }else{
+      showQuestion();
+    }
+  }
+}
+
+function endGame(){
+  document.getElementById("gameScreen").classList.add("hidden");
+  document.getElementById("endScreen").classList.remove("hidden");
+
+  document.getElementById("progressBar").style.width="100%";
+
+  let result="";
+
+  if(scores[0]>scores[1]){
+    result="🏆 PLAYER 1 QALİBDİR!";
+  }else if(scores[1]>scores[0]){
+    result="🏆 PLAYER 2 QALİBDİR!";
+  }else{
+    result="🤝 BƏRABƏRLİK!";
+  }
+
+  document.getElementById("winner").textContent=result;
+
+  document.getElementById("finalScores").innerHTML=
+    "🔵 PLAYER 1: "+scores[0]+" / 15<br><br>"+
+    "💗 PLAYER 2: "+scores[1]+" / 15<br><br>"+
+    "Sosial siyasət biliklərinizi sınadığınız üçün təşəkkürlər!";
+}
+
+</script>
+</body>
+</html>
